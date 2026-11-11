@@ -114,3 +114,7 @@ Parts of this project were developed with the help of Claude Code. Project conve
 ## License
 
 AVEN is licensed under the [MIT License](LICENSE).
+
+## Image Credits
+
+Product and editorial photography sourced from Unsplash. Images are subject to the [Unsplash License](https://unsplash.com/license) and are not covered by this project's MIT License.
