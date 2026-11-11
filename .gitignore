@@ -39,3 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# keep the env template tracked
+!.env.example
+
+# local AI tooling (not part of the application)
+/.claude/
+/.agents/
+/skills-lock.json

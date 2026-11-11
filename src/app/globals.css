@@ -1,26 +1,586 @@
 @import "tailwindcss";
 
+/* ==========================================================================
+   AVEN design system
+   Editorial luxury retail: monochrome, hairline borders, square corners,
+   small tracked uppercase UI text, generous whitespace, image-led layouts.
+   Tokens live in :root / @theme; reusable primitives live in @layer components.
+   ========================================================================== */
+
+/* --- Raw tokens ---------------------------------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colour */
+  --paper: #ffffff;
+  --ink: #111111;
+  --ink-soft: #5c5c5c;
+  --ink-faint: #8f8f8f;
+  --stone: #f5f4f2; /* product-image backdrop, subtle panels */
+  --line: #e4e2de; /* hairlines */
+  --line-strong: #111111;
+  --accent: #0f3d2e; /* deep green: the single brand accent */
+  --sale: #a4161a;
+
+  /* Page gutter grows with viewport (see also --spacing-gutter below) */
+  --gutter: 1rem;
+  --header-height: 3.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@media (min-width: 48rem) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --gutter: 1.5rem;
+    --header-height: 4rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (min-width: 80rem) {
+  :root {
+    --gutter: 2.5rem;
+    --header-height: 4.5rem;
+  }
+}
+
+/* --- Tailwind theme ------------------------------------------------------ */
+@theme inline {
+  /* Colours -> bg-paper, text-ink, border-line, etc. */
+  --color-background: var(--paper);
+  --color-foreground: var(--ink);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-stone: var(--stone);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-sale: var(--sale);
+
+  /* Fonts (variables are set by next/font in layout.tsx) */
+  --font-sans: var(--font-geist-sans), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-display), "Times New Roman", serif;
+
+  /* Spacing: Tailwind's 4px base scale stays; semantic steps are added.
+     -> px-gutter, py-section, h-header, etc. */
+  --spacing-gutter: var(--gutter);
+  --spacing-header: var(--header-height);
+  --spacing-section: clamp(3rem, 2rem + 4vw, 7rem);
+  --spacing-section-sm: clamp(2rem, 1.5rem + 2vw, 4rem);
+
+  /* Containers -> max-w-page, max-w-narrow, max-w-prose-page */
+  --container-page: 100rem;
+  --container-narrow: 64rem;
+  --container-prose-page: 40rem;
+
+  /* Type scale. Display is a fluid serif; UI text is small and tracked. */
+  --text-display: clamp(2.5rem, 1.6rem + 4vw, 5.5rem);
+  --text-display--line-height: 1.02;
+  --text-display--letter-spacing: -0.01em;
+  --text-h1: clamp(2rem, 1.5rem + 2vw, 3.25rem);
+  --text-h1--line-height: 1.1;
+  --text-h2: clamp(1.5rem, 1.25rem + 1vw, 2.25rem);
+  --text-h2--line-height: 1.15;
+  --text-h3: 1.125rem;
+  --text-h3--line-height: 1.35;
+  --text-body: 0.9375rem;
+  --text-body--line-height: 1.6;
+  --text-caption: 0.8125rem;
+  --text-caption--line-height: 1.5;
+  --text-label: 0.6875rem; /* 11px: nav, buttons, eyebrows */
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.14em;
+
+  /* Tracking -> tracking-label */
+  --tracking-label: 0.14em;
+  --tracking-wide-label: 0.2em;
+
+  /* Square corners everywhere; opt in to rounding only for avatars/pills */
+  --radius-none: 0;
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* --- Base ---------------------------------------------------------------- */
+@layer base {
+  /* Hairline borders by default instead of currentColor */
+  *,
+  ::before,
+  ::after,
+  ::backdrop {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  img,
+  video,
+  picture {
+    display: block;
+    max-width: 100%;
+  }
+
+  ::selection {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Visible, high-contrast focus for keyboard users only */
+  :focus-visible {
+    outline: 1px solid var(--ink);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* --- Components ---------------------------------------------------------- */
+@layer components {
+  /* ---- Containers & layout ---- */
+
+  /* Full-bleed content with responsive gutters, capped on huge screens */
+  .container-page {
+    width: 100%;
+    max-width: var(--container-page);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .container-narrow {
+    width: 100%;
+    max-width: var(--container-narrow);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .container-prose {
+    width: 100%;
+    max-width: var(--container-prose-page);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /* Vertical rhythm between page sections */
+  .section {
+    padding-block: var(--spacing-section);
+  }
+  .section-sm {
+    padding-block: var(--spacing-section-sm);
+  }
+
+  /* Hairline divider */
+  .rule {
+    border: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  /* ---- Typography ---- */
+  .display {
+    font-family: var(--font-display);
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+    letter-spacing: var(--text-display--letter-spacing);
+    font-weight: 400;
+  }
+
+  .heading-1 {
+    font-family: var(--font-display);
+    font-size: var(--text-h1);
+    line-height: var(--text-h1--line-height);
+    font-weight: 400;
+  }
+
+  .heading-2 {
+    font-family: var(--font-display);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+    font-weight: 400;
+  }
+
+  .heading-3 {
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    font-weight: 500;
+  }
+
+  /* Small tracked uppercase: nav items, eyebrows, buttons */
+  .label {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .eyebrow {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .caption {
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    color: var(--ink-soft);
+  }
+
+  .prose-page > * + * {
+    margin-top: 1.25em;
+  }
+
+  /* ---- Links ---- */
+
+  /* Default inline link: underlined, thickens on hover */
+  .link {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+    transition: text-decoration-thickness 150ms var(--ease-out-soft),
+      color 150ms var(--ease-out-soft);
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /* Navigation-style link: tracked uppercase, underline appears on hover */
+  .link-nav {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    font-weight: 500;
+    position: relative;
+    display: inline-block;
+    padding-block: 0.5rem;
+    text-decoration: none;
+  }
+  .link-nav::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.25rem;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 200ms var(--ease-out-soft);
+  }
+  .link-nav:hover::after,
+  .link-nav[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  /* Quiet link: inherits colour, only dims on hover (footers, metadata) */
+  .link-quiet {
+    text-decoration: none;
+    color: var(--ink-soft);
+    transition: color 150ms var(--ease-out-soft);
+  }
+  .link-quiet:hover {
+    color: var(--ink);
+  }
+
+  /* ---- Buttons ---- */
+  .btn {
+    font-size: var(--text-label);
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 3rem;
+    padding: 0.875rem 2rem;
+    border: 1px solid var(--ink);
+    border-radius: 0;
+    background: transparent;
+    color: var(--ink);
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 180ms var(--ease-out-soft),
+      color 180ms var(--ease-out-soft), border-color 180ms var(--ease-out-soft);
+  }
+
+  .btn:disabled,
+  .btn[aria-disabled="true"] {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  /* Primary: solid ink, inverts on hover */
+  .btn-primary {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .btn-primary:hover {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  /* Secondary: outline, fills on hover */
+  .btn-secondary:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  /* Ghost: no border, underlined label (for tertiary actions) */
+  .btn-ghost {
+    border-color: transparent;
+    padding-inline: 0;
+    min-height: 2.5rem;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.35em;
+  }
+  .btn-ghost:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /* Sizes / modifiers */
+  .btn-sm {
+    min-height: 2.5rem;
+    padding: 0.625rem 1.25rem;
+  }
+  .btn-block {
+    display: flex;
+    width: 100%;
+  }
+  /* Full-width on phones, natural width from md up */
+  .btn-block-mobile {
+    width: 100%;
+  }
+  @media (min-width: 48rem) {
+    .btn-block-mobile {
+      width: auto;
+    }
+  }
+
+  /* ---- Form fields: underline-only inputs ---- */
+  .field {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.75rem 0;
+    border: 0;
+    border-bottom: 1px solid var(--ink-faint);
+    border-radius: 0;
+    background: transparent;
+    font: inherit;
+    color: var(--ink);
+    transition: border-color 150ms var(--ease-out-soft);
+  }
+  .field::placeholder {
+    color: var(--ink-faint);
+  }
+  .field:focus {
+    outline: none;
+    border-bottom-color: var(--ink);
+  }
+
+  /* ---- Borders / surfaces ---- */
+  .surface {
+    border: 1px solid var(--line);
+  }
+  .surface-stone {
+    background: var(--stone);
+  }
+
+  /* ---- Imagery ---- */
+
+  /* Fixed-ratio frame on a stone backdrop; children fill it */
+  .media-frame {
+    position: relative;
+    overflow: hidden;
+    background: var(--stone);
+    aspect-ratio: 4 / 5;
+  }
+  .media-frame-square {
+    aspect-ratio: 1 / 1;
+  }
+  .media-frame-wide {
+    aspect-ratio: 16 / 9;
+  }
+  .media-frame > img,
+  .media-frame > video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ---- Product grid & card ---- */
+
+  /* 2 columns on phones, 4 from tablet up (so 8 items never orphan); tight gutters */
+  .grid-products {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.5rem 0.5rem;
+  }
+  @media (min-width: 48rem) {
+    .grid-products {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 2.5rem 1rem;
+    }
+  }
+  @media (min-width: 80rem) {
+    .grid-products {
+      gap: 3rem 1.25rem;
+    }
+  }
+
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    color: inherit;
+    text-decoration: none;
+  }
+  .product-card .media-frame > img {
+    transition: transform 600ms var(--ease-out-soft);
+  }
+  .product-card:hover .media-frame > img {
+    transform: scale(1.03);
+  }
+  .product-card__name {
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+  }
+  .product-card__price {
+    font-size: var(--text-caption);
+    color: var(--ink-soft);
+  }
+
+  /* ---- Header / navigation shell ---- */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: var(--header-height);
+    background: var(--paper);
+    border-bottom: 1px solid var(--line);
+  }
+  .site-header__inner {
+    width: 100%;
+    max-width: var(--container-page);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  /* Editorial split: two equal columns from md up, stacked on phones */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 48rem) {
+    .split {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+/* --- Utilities ----------------------------------------------------------- */
+@layer utilities {
+  /* Show/hide helpers keyed to the layout breakpoint (48rem) */
+  .only-mobile {
+    @media (min-width: 48rem) {
+      display: none;
+    }
+  }
+  .only-desktop {
+    @media (max-width: 47.999rem) {
+      display: none;
+    }
+  }
+
+  /* Horizontal scroller for carousels, hidden scrollbar, snap on touch */
+  .scroll-row {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .scroll-row::-webkit-scrollbar {
+    display: none;
+  }
+  .scroll-row > * {
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+  }
+}
+
+/* --- Imagery overlays (added for the homepage) ------------------------- */
+@layer components {
+  /* Light button for use on top of photography */
+  .btn-light {
+    background: var(--paper);
+    border-color: var(--paper);
+    color: var(--ink);
+  }
+  .btn-light:hover {
+    background: transparent;
+    color: var(--paper);
+  }
+
+  /* Bottom scrim so white text stays legible over any photo */
+  .scrim::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgb(0 0 0 / 0.55), rgb(0 0 0 / 0) 55%);
+    pointer-events: none;
+  }
+  .scrim > .scrim__content {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 1;
+    padding: var(--gutter);
+    color: #fff;
+  }
 }
