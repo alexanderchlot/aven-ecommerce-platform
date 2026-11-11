@@ -94,3 +94,7 @@ These are verified scenarios, not proof that every edge case is covered.
 ## AI-assisted development
 
 Parts of this project were developed with the help of Claude Code. Project conventions for AI tooling are documented in `CLAUDE.md`.
+
+## License
+
+AVEN is licensed under the [MIT License](LICENSE).
