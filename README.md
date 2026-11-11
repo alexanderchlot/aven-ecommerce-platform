@@ -2,6 +2,10 @@
 
 AVEN is a modern full-stack e-commerce application built with Next.js, TypeScript, PostgreSQL, and Stripe. It features product browsing, authentication, a persistent shopping bag, secure checkout, webhook-driven order processing, and inventory management.
 
+<p align="center">
+  <img src="docs/images/aven-preview.png" alt="AVEN homepage showing the header, navigation and the Winter Edit hero section" width="900">
+</p>
+
 Payments run in Stripe **test mode only**; the Stripe client refuses live keys.
 
 ## Features
