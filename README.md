@@ -74,7 +74,19 @@ Then add products to the bag and check out with a [Stripe test card](https://doc
 
 ## Testing
 
-There is no automated test suite yet. CI runs lint and type checking. Payment and inventory behavior was verified manually against a real database in Stripe test mode:
+There is no automated test suite yet. CI runs lint and type checking. The scenarios below were verified **manually** against a real database; none of them is covered by automated tests.
+
+**Authentication** (manually verified on 9 November 2026):
+
+- Sign-up created an account and signed the user in.
+- Sign-in, session persistence across a page reload, and sign-out all worked.
+- An incorrect password returned a generic error message.
+- Registering an already used email returned a neutral error that does not reveal the email exists.
+- A tampered session cookie was rejected and the user was redirected to sign-in.
+- Rate limiting returned HTTP 429 after repeated attempts.
+- The password is stored as a hash, not as plain text.
+
+**Payments and inventory** (Stripe test mode):
 
 - A successful test payment created one order and one order item, and stock decreased by one.
 - Replaying the same Stripe event created no duplicate order and did not decrease stock again.
